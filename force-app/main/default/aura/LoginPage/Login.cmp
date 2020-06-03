@@ -1,0 +1,64 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,lightning:availableForFlowScreens" access="global" controller="CommunityLoginController">
+    
+    <!-- Configuration -->
+    <aura:attribute name="responseType" type="String" default="token"/>    
+    <aura:attribute name="clientId" type="String" default=""/>    
+    
+    <aura:attribute name="redirectUri" type="String" default=""/> 
+    <aura:attribute name="state" type="String" default=""/> 
+
+    <aura:attribute name="registrationyUrl" type="String" default=""/> 
+    <aura:attribute name="forgetPasswdUrl" type="String" default=""/> 
+    
+    <aura:attribute name="username" type="String"/>
+    <aura:attribute name="passwd" type="String"/>   
+    <aura:attribute name="authProviders" type="AuthProvider"/>
+    <aura:attribute name="orgId" type="String"/>
+    <aura:attribute name="encodedSiteUrl" type="String"/>   
+    <aura:attribute name="errorStatus" type="Integer" default="false"/> 
+    <aura:attribute name="language" type="String" default="en_US"/> 
+    
+    <aura:attribute name="startUrl" type="String" required="false" description="The url you go to after a successful login" />
+    <aura:attribute name="expid" type="String" required="false" description="The branding experience ID" />   
+    
+    <aura:attribute name="communityForgotPasswordUrl" type="String" access="private"/>
+    <aura:attribute name="communitySelfRegisterUrl" type="String" access="private"/>
+    
+    <aura:registerevent name="sitePropagatedStartUrl" type="c:setStartUrl"/>
+    <aura:handler name="init" value="{!this}" action="{!c.initialize}"/>
+    <aura:dependency resource="c:setStartUrl" type="EVENT"/>
+    <!-- Please uncomment
+    <aura:dependency resource="siteforce:registerQueryEventMap" type="EVENT"/>
+    -->
+    <aura:handler event="c:setStartUrl" action="{!c.setStartUrl}"/>
+    <aura:handler event="c:setExpId" action="{!c.setExpId}"/>    
+    <aura:dependency resource="c:setExpId" type="EVENT"/>
+    
+    <div class="slds-grid slds-grid_align-center">
+        
+        <div id="sign-in-link">
+            <div id="sfid-inline-content">
+                <form class="validate-form" onkeypress="{!c.onKeyUp}">                  
+                    
+                    <lightning:input class="sfid-username" messageWhenValueMissing="{!$Label.c.LoginErrorMessage}" type="string" onchange="{! c.trimName}" name="Username" required="true" maxlength="50" placeholder="" autofocus="autofocus" label="Username" value="{!v.username}"/>
+                    <lightning:input class="sfid-password" messageWhenValueMissing="{!$Label.c.LoginErrorMessage}" type="password" onkeypress="{!c.keyCheck}" onchange="{! c.trimPassword}" name="Password" required="true" maxlength="50" label="Password" value="{!v.passwd}"/>
+                    <lightning:button class="sfid-button" onclick="{! c.doLogin }">Login</lightning:button>
+                </form>
+                <div id="sfid-selfreg-password">
+                    <button id="sfid-forgot-password" onclick="{! c.gotoForget }">Forget Password ?</button>
+                </div>
+                
+                <div class="sfid-small" id="text-line">Or</div>
+                <div>
+                    <a id="sfid-self-registration" href="{!v.registrationyUrl}">Register Now</a>
+                </div>
+                <div id="sfid-social">
+                        <aura:iteration items="{!v.authProviders}" var="ap">                                                        
+                            <span class="sfid-button-ap" id="{!'sfid-button-ap-' + ap.FriendlyName}"><button  data-record="{!ap.startUrl}" onclick="{!c.goto}">{!ap.FriendlyName}</button></span>
+                        </aura:iteration>	
+                </div>
+            </div>           
+        </div>
+    </div>
+    
+</aura:component>
