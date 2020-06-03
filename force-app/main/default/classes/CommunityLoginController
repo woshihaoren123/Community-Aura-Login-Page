@@ -1,0 +1,81 @@
+public with sharing class CommunityLoginController {
+    
+    public CommunityLoginController() {
+        Cookie counter = new Cookie('counter','1',null,-1,false);
+        ApexPages.currentPage().setCookies(new Cookie[]{counter});
+    }
+
+    @AuraEnabled
+    public Static HandlerResult myLogin(String username, String password, String startUrl) {       
+        
+        try{
+
+            ApexPages.PageReference lgn = Site.login(username, password, startUrl);     
+            aura.redirect(lgn);
+            return null;
+        }
+        catch (Exception ex) {           
+            return HandlerResult.error(ex.getMessage());       
+        }
+    }
+    
+    @AuraEnabled
+    public static String setExperienceId(String expId) {
+        // Return null if there is no error, else it will return the error message 
+        try {
+            if (expId != null) {
+                Site.setExperienceId(expId);
+            }
+            return null; 
+        } catch (Exception ex) {
+            return ex.getMessage();            
+        }
+    } 
+    
+    @AuraEnabled
+    public static String getOrgId() {
+        return UserInfo.getOrganizationId();
+    }
+    
+    @AuraEnabled
+    public static String getSiteURL() {
+        return Site.getBaseUrl();
+    }
+    
+    @AuraEnabled
+    public static List<AuthProvider> getAuthProviders(String startUrl) {
+        Id networkId = Network.getNetworkId();
+        Auth.AuthConfiguration authConfig = new Auth.AuthConfiguration(networkId,startUrl);
+        List<AuthProvider> authPrvs = authConfig.getAuthProviders();
+        return authPrvs;
+    }
+    
+   
+    
+    @AuraEnabled
+    public static String getForgotPasswordUrl() {
+        Auth.AuthConfiguration authConfig = getAuthConfig();
+        return authConfig.getForgotPasswordUrl();
+    }
+    
+    @AuraEnabled
+    public static String getSelfRegistrationUrl() {
+        Auth.AuthConfiguration authConfig = getAuthConfig();
+        if (authConfig.getSelfRegistrationEnabled()) {
+            return authConfig.getSelfRegistrationUrl();
+        }
+        return null;
+    }
+    
+    @TestVisible
+    private static Auth.AuthConfiguration getAuthConfig(){
+        Id networkId = Network.getNetworkId();
+        Auth.AuthConfiguration authConfig = new Auth.AuthConfiguration(networkId,'');
+        return authConfig;
+    }
+    
+    public class MyAuthProvider {
+        public AuthProvider authProvider;
+        public String ssoUrl;
+    }
+}
